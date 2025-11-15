@@ -1,0 +1,26 @@
+// Voice Activation System
+function checkVoiceActivation() {
+    const voiceActivated = localStorage.getItem('echoVoiceActivated');
+    if (voiceActivated === 'true') {
+        // Already activated - start voice immediately
+        setTimeout(() => {
+            startVoiceRecognition();
+        }, 1000);
+    } else {
+        // First time - show activation overlay
+        document.getElementById('voice-activation-overlay').style.display = 'flex';
+    }
+}
+
+function activateVoiceControl() {
+    // Store activation in localStorage
+    localStorage.setItem('echoVoiceActivated', 'true');
+    
+    // Hide overlay
+    document.getElementById('voice-activation-overlay').style.display = 'none';
+    
+    // Start voice recognition
+    setTimeout(() => {
+        startVoiceRecognition();
+    }, 500);
+}

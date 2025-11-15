@@ -1,0 +1,69 @@
+CLAUDE CODE CLI DIAGNOSTIC REQUEST - ECHO PRIME XV4
+
+PROBLEM:
+Claude CLI hangs indefinitely when used in non-interactive print mode with -p flag.
+All attempts to use subprocess.run() with claude CLI timeout after 30-60 seconds.
+
+SYSTEM:
+- Windows 10
+- Claude CLI: v2.0.37
+- Python: 3.10.0
+- Authentication: VALID (OAuth tokens present in C:\Users\bobmc\.claude\.credentials.json)
+- Subscription: Claude Max
+
+ATTEMPTED COMMANDS (ALL HANG):
+1. claude -p "what is 2+2"
+2. claude -p --dangerously-skip-permissions "test"
+3. claude -p --tools "" "test"
+4. claude -p --dangerously-skip-permissions --tools "" "test"
+
+SUBPROCESS CONFIGURATION:
+```python
+subprocess.run(
+    [claude_cmd, '-p', '--dangerously-skip-permissions', '--tools', '', query],
+    capture_output=True,
+    text=True,
+    timeout=60,
+    env=os.environ.copy()
+)
+```
+
+OBSERVED BEHAVIOR:
+- Process starts but produces NO output
+- Hangs indefinitely until timeout
+- No stderr, no stdout
+- No error messages
+- CPU usage indicates process is running but stuck
+
+WORKING SCENARIOS:
+- Interactive mode (no -p flag) works fine
+- claude --version works instantly
+- claude --help works instantly
+
+GOAL:
+Enable Claude CLI to work in non-interactive mode for HTTP bridge server integration.
+Bridge needs to send query via subprocess and get response back synchronously.
+
+DIAGNOSTIC QUESTIONS:
+1. Why does -p flag cause hanging?
+2. What is Claude CLI waiting for in print mode?
+3. Is there a stdin/stdout buffering issue?
+4. Are there missing flags or environment variables needed?
+5. Is there a working directory requirement?
+6. Does Claude CLI need a specific shell environment?
+
+REQUESTED OUTPUT:
+1. Root cause analysis
+2. Specific fix/workaround
+3. Alternative command syntax that works
+4. Environment variables or config changes needed
+5. Code example showing working subprocess integration
+
+CONSTRAINTS:
+- Must work via Python subprocess (HTTP bridge server)
+- Must return output synchronously (no interactive prompts)
+- Must complete within 30 seconds
+- Cannot require user interaction
+- Should work in PowerShell environment
+
+Please diagnose this issue and provide a working solution for subprocess integration.

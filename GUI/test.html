@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ECHO PRIME - Server Test</title>
+    <style>
+        body {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: monospace;
+            padding: 50px;
+            text-align: center;
+        }
+        h1 { font-size: 48px; }
+        .status { font-size: 24px; margin: 20px; }
+        .ok { color: #00ff00; }
+        .error { color: #ff0000; }
+    </style>
+</head>
+<body>
+    <h1>🎖️ ECHO PRIME SERVER TEST</h1>
+    <div class="status ok">✅ SERVER IS RUNNING</div>
+    <div class="status ok">✅ BROWSER CAN LOAD PAGES</div>
+    <div class="status ok">✅ JAVASCRIPT IS ENABLED</div>
+    
+    <hr style="margin: 40px 0; border-color: #00ff00;">
+    
+    <div style="font-size: 18px;">
+        <p>If you can see this page, the server is working correctly.</p>
+        <p>Server: http://localhost:8766</p>
+        <p>Time: <span id="time"></span></p>
+    </div>
+    
+    <hr style="margin: 40px 0; border-color: #00ff00;">
+    
+    <a href="/" style="color: #00ff00; font-size: 24px; text-decoration: none;">
+        🔗 GO TO MAIN GUI →
+    </a>
+    
+    <script>
+        // Test JavaScript
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        console.log('✅ JavaScript is working');
+        console.log('✅ Server test page loaded successfully');
+    </script>
+</body>
+</html>

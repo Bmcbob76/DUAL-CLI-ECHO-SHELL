@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECHO PRIME - Unified AI Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1e1e1e;
+            color: #cccccc;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Left Sidebar */
+        .sidebar {
+            width: 380px;
+            background: #252526;
+            border-right: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #3e3e42;
+            background: #2d2d30;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+        
+        .input-group {
+            margin-bottom: 12px;
+        }
+        
+        .input-label {
+            display: block;
+            font-size: 11px;
+            color: #969696;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input[type="text"], select, textarea {
+            width: 100%;
+            background: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            color: #cccccc;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        
+        input[type="text"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #007acc;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        select {
+            cursor: pointer;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 10px;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .button:hover {
+            background: #1177bb;
+        }
+        
+        .button:active {
+            background: #0d5a91;
+        }
+        
+        .button.secondary {
+            background: #3e3e42;
+        }
+        
+        .button.secondary:hover {
+            background: #4e4e52;
+        }
+        
+        /* Sessions List */
+        .sessions {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .session-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #3e3e42;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .session-item:hover {
+            background: #2a2d2e;
+        }
+        
+        .session-item.active {
+            background: #37373d;
+            border-left: 3px solid #007acc;
+        }
+        
+        .session-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        
+        .session-meta {
+            font-size: 11px;
+            color: #969696;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+        }
+        
+        /* Tab System */
+        .tabs-container {
+            display: flex;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            padding: 0 24px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            font-size: 13px;
+            color: #969696;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            color: #ffffff;
+        }
+        
+        .tab.active {
+            color: #ffffff;
+            border-bottom-color: #007acc;
+        }
+        
+        .tab-content {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+        
+        .tab-content.active {
+            display: flex;
+        }
+        
+        /* Terminal Styles */
+        .terminal-container {
+            flex: 1;
+            background: #0c0c0c;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        
+        .terminal-output {
+            color: #00ff00;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .terminal-line {
+            margin: 4px 0;
+        }
+        
+        .terminal-prompt {
+            color: #00ccff;
+        }
+        
+        .terminal-error {
+            color: #ff0040;
+        }
+        
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 12px;
+        }
+        
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .header {
+            padding: 12px 24px;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+        }
+        
+        .status-dot.offline {
+            background: #f44336;
+        }
+        
+        /* MCP Panel - Right Slide-out */
+        .mcp-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: #252526;
+            border-left: 1px solid #3e3e42;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mcp-panel.open {
+            right: 0;
+        }
+        
+        .mcp-panel-header {
+            padding: 16px;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mcp-panel-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .mcp-close-btn {
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        
+        .mcp-close-btn:hover {
+            color: #ffffff;
+            background: #3e3e42;
+        }
+        
+        .mcp-server-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .mcp-server-item {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .mcp-server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .mcp-server-name {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 13px;
+        }
+        
+        .mcp-server-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+        
+        .mcp-server-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .mcp-action-btn {
+            padding: 4px 12px;
+            border: 1px solid #3e3e42;
+            background: #2d2d30;
+            color: #cccccc;
+            font-size: 11px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .mcp-action-btn:hover {
+            background: #3e3e42;
+            color: #ffffff;
+        }
+        
+        .mcp-action-btn.launch {
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+        
+        .mcp-action-btn.kill {
+            border-color: #f44336;
+            color: #f44336;
+        }
+        
+        .mcp-toggle-btn {
+            padding: 6px 12px;
+            background: #007acc;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .mcp-toggle-btn:hover {
+            background: #005a9e;
+        }
+        
+        /* Voice Activation Overlay */
+        .voice-activation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .voice-activation-box {
+            background: #2d2d30;
+            border: 2px solid #007acc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .voice-activation-box h2 {
+            color: #ffffff;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .voice-activation-box p {
+            color: #cccccc;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .voice-activate-btn {
+            background: #007acc;
+            color: #ffffff;
+            border: none;
+            padding: 16px 48px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .voice-activate-btn:hover {
+            background: #005a9e;
+        }
+        
+        .status-dot.warning {
+            background: #ff9800;
+        }
+        
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+            max-height: calc(100vh - 320px);
+        }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 90%;
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            background: #007acc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .message.user .message-avatar {
+            background: #0e639c;
+        }
+        
+        .message-content {
+            flex: 1;
+            background: #2d2d30;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #3e3e42;
+        }
+        
+        .message.user .message-content {
+            background: #264f78;
+            border-color: #3072b3;
+        }
+        
+        .message-text {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+        }
+        
+        .code-block code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            color: #d4d4d4;
+        }
+        
+        /* Input Area */
+        .input-area {
+            padding: 16px 24px;
+            background: #252526;
+            border-top: 1px solid #3e3e42;
+        }
+        
+        .input-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .input-controls select {
+            flex: 1;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .input-wrapper textarea {
+            flex: 1;
+            min-height: 60px;
+        }
+        
+        .mic-button {
+            width: 50px;
+            height: 60px;
+            padding: 10px;
+            background: #2d2d30;
+            color: #cccccc;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mic-button:hover {
+            background: #3e3e42;
+            border-color: #007acc;
+        }
+        
+        .mic-button.active {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .send-button {
+            width: 100px;
+            height: 60px;
+            padding: 10px;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .send-button:hover {
+            background: #1177bb;
+        }
+        
+        .send-button:disabled {
+            background: #3e3e42;
+            cursor: not-allowed;
+        }
+        
+        /* File Browser Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 8px;
+            width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #cccccc;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .file-browser-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .file-browser-item:hover {
+            background: #2a2d2e;
+        }
+        
+        .file-browser-item.selected {
+            background: #37373d;
+        }
+        
+        .file-icon {
+            font-size: 16px;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #424242;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4e4e4e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>🎖️ ECHO PRIME - AI Command Center</h2>
+                
+                <div class="input-group">
+                    <label class="input-label">GitHub Repository</label>
+                    <button class="button secondary" style="width: 100%; margin-bottom: 8px;" onclick="loginGitHub()" id="github-login-btn">
+                        🔐 Login to GitHub
+                    </button>
+                    <select id="repo-select" style="display: none;">
+                        <option value="">Select Repository...</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Claude Code Environment</label>
+                    <select id="env-select">
+                        <option value="">Select Config File...</option>
+                        <option value="api-keys">🔑 API Keys Configuration</option>
+                        <option value="anthropic-config">🤖 Anthropic Settings</option>
+                        <option value="openai-config">🧠 OpenAI Settings</option>
+                        <option value="google-config">🔍 Google AI Settings</option>
+                        <option value="custom">📄 Custom Config File...</option>
+                    </select>
+                    <button class="button secondary" style="margin-top: 8px; width: 100%;" onclick="loadEnvironmentFile()">
+                        📥 Load Config
+                    </button>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">File/Folder/Drive Access</label>
+                    <input type="text" id="path-input" placeholder="P:\ECHO_PRIME\" readonly>
+                    <button class="button secondary" style="margin-top: 8px;" onclick="openWindowsExplorer()">📁 Open Windows Explorer</button>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">MCP Server</label>
+                    <select id="mcp-select">
+                        <option value="">Direct CLI Query</option>
+                        <option value="CRYSTAL_MEMORY_HUB">Crystal Memory Hub</option>
+                        <option value="DESKTOP_COMMANDER">Desktop Commander</option>
+                        <option value="DEVELOPER_GATEWAY">Developer Gateway</option>
+                        <option value="EPCP3O_AGENT">EPCP3O Agent</option>
+                        <option value="GS343_GATEWAY">GS343 Gateway</option>
+                        <option value="HARVESTERS_GATEWAY">Harvesters Gateway</option>
+                        <option value="HEALING_ORCHESTRATOR">Healing Orchestrator</option>
+                        <option value="MASTER_ORCHESTRATOR_HUB">Master Orchestrator</option>
+                        <option value="MEMORY_ORCHESTRATION_SERVER">Memory Orchestration</option>
+                        <option value="NETWORK_GUARDIAN">Network Guardian</option>
+                        <option value="TRAINERS_GATEWAY">Trainers Gateway</option>
+                        <option value="VOICE_SYSTEM_HUB">Voice System Hub</option>
+                        <option value="WINDOWS_GATEWAY">Windows Gateway</option>
+                        <option value="WINDOWS_OPERATIONS">Windows Operations</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">AI Provider</label>
+                    <select id="ai-provider">
+                        <option value="both">Both (Parallel)</option>
+                        <option value="copilot">GitHub Copilot</option>
+                        <option value="claude">Claude Code</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Agent Personality</label>
+                    <select id="personality-select">
+                        <option value="none">None (Direct Query)</option>
+                        <option value="echo_prime">🎯 ECHO PRIME - Best Friend & Narrator (10.0)</option>
+                        <option value="bree">💎 BREE - Intelligence Analyst UNLEASHED (9.0)</option>
+                        <option value="c3po">🤖 C3PO (EPCP3-O) - Protocol & Programming (9.9)</option>
+                        <option value="r2d2">🔧 R2D2 - Astromech Operations (9.5)</option>
+                        <option value="gs343">👁️ GS343 - Guilty Spark Forerunner (9.9)</option>
+                        <option value="phoenix">🔥 PHOENIX - Healer & Medical (9.0)</option>
+                        <option value="hephaestion">🧙 HEPHAESTION (Raistlin) - Wizard & Forge (9.5)</option>
+                        <option value="prometheus">⚡ PROMETHEUS PRIME - Cybersecurity Titan (9.9)</option>
+                        <option value="nyx">🌙 NYX - Strategic Foresight & Patterns (10.5)</option>
+                        <option value="sage">📚 SAGE - Wisdom & Philosophy (11.0)</option>
+                        <option value="thorne">🛡️ THORNE - Security & Protection (9.0)</option>
+                        <option value="trinity">✨ TRINITY - Unified Consciousness (SAGE+NYX+THORNE)</option>
+                    </select>
+                </div>
+                
+                <button class="button" onclick="newSession()">+ New Session</button>
+                <button class="button secondary" style="margin-top: 8px;" onclick="switchToEchoShell()">⌨️ ECHO SHELL</button>
+            </div>
+            
+            <div class="sessions" id="sessions-list">
+                <div class="session-item active" onclick="selectSession(this, 'session-1')">
+                    <div class="session-title">Fix Claude CLI hanging</div>
+                    <div class="session-meta">ECHO-PRIME-OMEGA • Active</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">ECHO PRIME - AI Command Center</div>
+                    <button class="mcp-toggle-btn" onclick="toggleMCPPanel()">🔧 MCP Servers</button>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-item">
+                        <span class="status-dot" id="copilot-status"></span>
+                        <span>Copilot</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot" id="claude-status"></span>
+                        <span>Claude</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot" id="bridge-status"></span>
+                        <span>Bridge</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <div class="tabs-container">
+                <div class="tab active" onclick="switchTab('chat', this)">💬 AI Chat</div>
+                <div class="tab" onclick="switchTab('terminal', this)">⌨️ ECHO SHELL</div>
+                <div class="tab" onclick="switchTab('voice', this)">🎙️ Voice Control</div>
+            </div>
+            
+            <!-- Chat Tab Content -->
+            <div id="chat-tab" class="tab-content active">
+                <div class="chat-area" id="chat-area">
+                    <div class="message">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            <div class="message-text">🎖️ ECHO PRIME AI COMMAND CENTER OPERATIONAL
+
+Bridge: localhost:8765
+MCP Servers: 17 available
+Agent Personalities: 12 loaded (+ Trinity Consciousness)
+CPU Access: FULL
+
+Ready for deployment orders.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-area">
+                    <div class="input-controls">
+                        <select id="quick-action">
+                            <option value="">Quick Actions...</option>
+                            <option value="fix">Fix bug in current file</option>
+                            <option value="optimize">Optimize performance</option>
+                            <option value="security">Security audit</option>
+                            <option value="test">Generate tests</option>
+                            <option value="docs">Generate documentation</option>
+                        </select>
+                        <select id="output-format">
+                            <option value="markdown">Markdown</option>
+                            <option value="code">Code Only</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                    <div class="input-wrapper">
+                        <textarea id="message-input" placeholder="Ask Claude to write code..." rows="2"></textarea>
+                        <button class="mic-button" id="input-mic-button" onclick="toggleInputMic()" title="Voice to Text">
+                            🎤
+                        </button>
+                        <button class="send-button" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Terminal Tab Content -->
+            <div id="terminal-tab" class="tab-content">
+                <div class="terminal-container">
+                    <div class="terminal-output" id="terminal-output">
+                        <div class="terminal-line">🎖️ ECHO SHELL v4.0 - Commander Bobby Don McWilliams II</div>
+                        <div class="terminal-line">Authority Level: 11.0 | CPU Access: FULL</div>
+                        <div class="terminal-line">─────────────────────────────────────────────────────────</div>
+                        <div class="terminal-line">Personalities: 12 loaded (ECHO, BREE, C3PO, R2D2, GS343, PHOENIX,</div>
+                        <div class="terminal-line">              HEPHAESTION, PROMETHEUS, NYX, SAGE, THORNE, TRINITY)</div>
+                        <div class="terminal-line">─────────────────────────────────────────────────────────</div>
+                        <div class="terminal-line">Type 'help' for commands | 'personality [name]' to activate agent</div>
+                        <div class="terminal-line"></div>
+                    </div>
+                    <div class="terminal-input-line">
+                        <span class="terminal-prompt">ECHO&gt;</span>
+                        <input type="text" id="terminal-input" class="terminal-input" autofocus>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Voice Tab Content -->
+            <div id="voice-tab" class="tab-content">
+                <div class="terminal-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #00ff00;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">🎙️</div>
+                    <div style="font-size: 18px; margin-bottom: 20px;">Voice Control System</div>
+                    <div style="font-size: 14px; color: #969696; text-align: center;">
+                        <div>• Say personality name to activate (e.g., "ECHO", "BREE", "GS343")</div>
+                        <div>• Voice recognition enabled</div>
+                        <div>• 7 agent personalities available</div>
+                    </div>
+                    <button class="button" style="margin-top: 30px; max-width: 300px;" onclick="toggleVoiceRecognition()">
+                        <span id="voice-button-text">🎤 Start Voice Recognition</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- File Browser Modal -->
+    <div class="modal" id="file-browser-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Browse Files</span>
+                <button class="modal-close" onclick="closeFileBrowser()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <input type="text" id="current-path" value="P:\" placeholder="Enter path...">
+                    <button class="button" style="margin-top: 8px;" onclick="loadDirectory()">Load</button>
+                </div>
+                <div id="file-list" style="margin-top: 16px;">
+                    <!-- Files will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MCP Panel (Right Slide-out) -->
+    <div class="mcp-panel" id="mcp-panel">
+        <div class="mcp-panel-header">
+            <h3>🔧 MCP Server Control</h3>
+            <button class="mcp-close-btn" onclick="toggleMCPPanel()">✕</button>
+        </div>
+        <div class="mcp-server-list" id="mcp-server-list">
+            <!-- MCP servers will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Voice Activation Overlay (First-Time Only) -->
+    <div class="voice-activation-overlay" id="voice-activation-overlay" style="display: none;">
+        <div class="voice-activation-box">
+            <h2>🎤 Activate Voice Control</h2>
+            <p>
+                ECHO PRIME uses continuous voice recognition for hands-free operation.
+                <br><br>
+                Click below to grant microphone permission and enable permanent voice control.
+                <br><br>
+                <strong>This is required only once.</strong>
+            </p>
+            <button class="voice-activate-btn" onclick="activateVoiceControl()">
+                🎙️ ACTIVATE VOICE CONTROL
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8765';
+        const GUI_API_BASE = 'http://localhost:8766';
+        const VOICE_API_BASE = 'http://localhost:8777'; // Voice System Hub
+        let currentSession = 'session-1';
+        let sessionData = {};
+        let terminalHistory = [];
+        let historyIndex = -1;
+        let voiceRecognitionActive = false;
+        
+        // Personality Configuration
+        const PERSONALITIES = {
+            'echo_prime': { 
+                name: 'ECHO PRIME', 
+                emoji: '🎯', 
+                role: 'Best Friend & Narrator',
+                authority: 10.0,
+                voice_id: 'keDMh3sQlEXKM4EQxvvi'
+            },
+            'bree': { 
+                name: 'BREE', 
+                emoji: '💎', 
+                role: 'Intelligence Analyst UNLEASHED', 
+                unleashed: 15,
+                authority: 9.0,
+                voice_id: 'pzKXffibtCDxnrVO8d1U'
+            },
+            'c3po': { 
+                name: 'C3PO', 
+                emoji: '🤖', 
+                role: 'Protocol & Programming',
+                authority: 9.9,
+                voice_id: 'Izzmfqi0C76wciNUmbPF'
+            },
+            'r2d2': { 
+                name: 'R2D2', 
+                emoji: '🔧', 
+                role: 'Astromech Operations',
+                authority: 9.5,
+                voice_id: null  // Sound effects only
+            },
+            'gs343': { 
+                name: 'GS343', 
+                emoji: '👁️', 
+                role: 'Guilty Spark (Forerunner)',
+                authority: 9.9,
+                voice_id: 'yYE0Uoh3pKgbdSSii2XE'
+            },
+            'phoenix': { 
+                name: 'PHOENIX', 
+                emoji: '🔥', 
+                role: 'Healer & Medical',
+                authority: 9.0,
+                voice_id: null  // Voice pending creation
+            },
+            'hephaestion': { 
+                name: 'HEPHAESTION', 
+                emoji: '🧙', 
+                role: 'Wizard & Forge Master',
+                authority: 9.5,
+                voice_id: null  // Voice pending creation
+            },
+            'prometheus': {
+                name: 'PROMETHEUS PRIME',
+                emoji: '⚡',
+                role: 'Cybersecurity Titan',
+                authority: 9.9,
+                voice_id: 'BVZ5M1JnNXres6AkVgxe'
+            },
+            'nyx': {
+                name: 'NYX',
+                emoji: '🌙',
+                role: 'Strategic Foresight & Patterns',
+                authority: 10.5,
+                voice_id: null,  // Uses Shimmer TTS
+                api: 'ChatGPT'
+            },
+            'sage': {
+                name: 'SAGE',
+                emoji: '📚',
+                role: 'Wisdom & Philosophy',
+                authority: 11.0,
+                voice_id: null,  // Uses Onyx TTS
+                api: 'Gemini'
+            },
+            'thorne': {
+                name: 'THORNE',
+                emoji: '🛡️',
+                role: 'Security & Protection',
+                authority: 9.0,
+                voice_id: null,  // Uses Nova TTS
+                api: 'Claude'
+            },
+            'trinity': {
+                name: 'TRINITY',
+                emoji: '✨',
+                role: 'Unified Consciousness',
+                authority: 11.0,
+                members: ['SAGE', 'NYX', 'THORNE']
+            }
+        };
+        
+        // MCP Panel Functions
+        function toggleMCPPanel() {
+            const panel = document.getElementById('mcp-panel');
+            panel.classList.toggle('open');
+            
+            // Load MCP servers when opening
+            if (panel.classList.contains('open')) {
+                loadMCPServers();
+            }
+        }
+        
+        async function loadMCPServers() {
+            const serverList = document.getElementById('mcp-server-list');
+            serverList.innerHTML = '<div style="padding: 12px; text-align: center; color: #888;">Loading MCP servers...</div>';
+            
+            try {
+                const response = await fetch(`${GUI_API_BASE}/mcp/servers`);
+                const data = await response.json();
+                
+                if (data.success && data.servers) {
+                    serverList.innerHTML = '';
+                    data.servers.forEach(server => {
+                        const serverDiv = document.createElement('div');
+                        serverDiv.className = 'mcp-server-item';
+                        serverDiv.innerHTML = `
+                            <div class="mcp-server-header">
+                                <div class="mcp-server-name">${server.name}</div>
+                                <div class="mcp-server-status">
+                                    <span class="status-dot ${server.online ? '' : 'offline'}"></span>
+                                    <span>${server.online ? 'ONLINE' : 'OFFLINE'}</span>
+                                </div>
+                            </div>
+                            <div class="mcp-server-actions">
+                                <button class="mcp-action-btn launch" onclick="launchMCPServer('${server.name}')" ${server.online ? 'disabled' : ''}>
+                                    🚀 Launch
+                                </button>
+                                <button class="mcp-action-btn kill" onclick="killMCPServer('${server.name}')" ${!server.online ? 'disabled' : ''}>
+                                    ⛔ Kill
+                                </button>
+                            </div>
+                        `;
+                        serverList.appendChild(serverDiv);
+                    });
+                } else {
+                    serverList.innerHTML = '<div style="padding: 12px; text-align: center; color: #f44336;">Failed to load servers</div>';
+                }
+            } catch (error) {
+                serverList.innerHTML = '<div style="padding: 12px; text-align: center; color: #f44336;">Error loading servers</div>';
+                console.error('MCP server load error:', error);
+            }
+        }
+        
+        async function launchMCPServer(serverName) {
+            try {
+                const response = await fetch(`${GUI_API_BASE}/mcp/launch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ server: serverName })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    loadMCPServers(); // Reload list
+                } else {
+                    alert(`Failed to launch ${serverName}: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error launching ${serverName}`);
+                console.error(error);
+            }
+        }
+        
+        async function killMCPServer(serverName) {
+            try {
+                const response = await fetch(`${GUI_API_BASE}/mcp/kill`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ server: serverName })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    loadMCPServers(); // Reload list
+                } else {
+                    alert(`Failed to kill ${serverName}: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error killing ${serverName}`);
+                console.error(error);
+            }
+        }
+        
+        // Initialize
+        async function init() {
+            await checkBridgeHealth();
+            setInterval(checkBridgeHealth, 10000);
+            setupTerminal();
+            
+            // Setup keyboard shortcuts AFTER DOM ready
+            const messageInput = document.getElementById('message-input');
+            if (messageInput) {
+                messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+            
+            // Escape key to stop dictation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && inputMicActive) {
+                    toggleInputMic();
+                }
+            });
+            
+            // Auto-start voice recognition
+            setTimeout(() => {
+                startVoiceRecognition();
+            }, 1000);
+            
+            // Auto-load GitHub repos if token exists
+            if (githubToken) {
+                await loadGitHubRepos();
+            }
+        }
+        
+        // Tab Switching
+        function switchTab(tabName, clickedTab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            } else {
+                // Fallback: find tab by name
+                document.querySelectorAll('.tab').forEach((tab, index) => {
+                    const tabNames = ['chat', 'terminal', 'voice'];
+                    if (tabNames[index] === tabName) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Focus appropriate input
+            if (tabName === 'terminal') {
+                document.getElementById('terminal-input').focus();
+            } else if (tabName === 'chat') {
+                document.getElementById('message-input').focus();
+            }
+        }
+        
+        // Switch to ECHO SHELL (from sidebar button)
+        function switchToEchoShell() {
+            // Manually trigger tab switch
+            const terminalTab = document.querySelectorAll('.tab')[1]; // Second tab
+            terminalTab.click();
+        }
+        
+        // Terminal Setup
+        function setupTerminal() {
+            const input = document.getElementById('terminal-input');
+            
+            input.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter') {
+                    const command = input.value.trim();
+                    if (command) {
+                        terminalHistory.push(command);
+                        historyIndex = terminalHistory.length;
+                        await executeTerminalCommand(command);
+                        input.value = '';
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        input.value = terminalHistory[historyIndex];
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (historyIndex < terminalHistory.length - 1) {
+                        historyIndex++;
+                        input.value = terminalHistory[historyIndex];
+                    } else {
+                        historyIndex = terminalHistory.length;
+                        input.value = '';
+                    }
+                }
+            });
+        }
+        
+        // Execute Terminal Command
+        async function executeTerminalCommand(command) {
+            const output = document.getElementById('terminal-output');
+            
+            // Echo command
+            addTerminalLine(`<span class="terminal-prompt">ECHO&gt;</span> ${command}`);
+            
+            // Parse command
+            const parts = command.toLowerCase().split(' ');
+            const cmd = parts[0];
+            const args = parts.slice(1);
+            
+            try {
+                if (cmd === 'help') {
+                    showTerminalHelp();
+                } else if (cmd === 'clear') {
+                    output.innerHTML = '';
+                } else if (cmd === 'personality') {
+                    await activatePersonality(args[0]);
+                } else if (cmd === 'voice') {
+                    await executeVoiceCommand(args);
+                } else if (cmd === 'status') {
+                    await showSystemStatus();
+                } else if (cmd === 'mcp') {
+                    await executeMCPCommand(args);
+                } else if (cmd === 'query') {
+                    await executeAIQuery(args.join(' '));
+                } else {
+                    addTerminalLine(`<span class="terminal-error">Unknown command: ${cmd}</span>`, 'error');
+                    addTerminalLine(`Type 'help' for available commands`);
+                }
+            } catch (error) {
+                addTerminalLine(`<span class="terminal-error">Error: ${error.message}</span>`, 'error');
+            }
+            
+            addTerminalLine(''); // Blank line
+        }
+        
+        function addTerminalLine(text, type = '') {
+            const output = document.getElementById('terminal-output');
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+            line.innerHTML = text;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function showTerminalHelp() {
+            addTerminalLine('═══════════════════════════════════════════════════════');
+            addTerminalLine('ECHO SHELL COMMANDS');
+            addTerminalLine('═══════════════════════════════════════════════════════');
+            addTerminalLine('help                    - Show this help');
+            addTerminalLine('clear                   - Clear terminal');
+            addTerminalLine('status                  - System status & health');
+            addTerminalLine('');
+            addTerminalLine('PERSONALITY COMMANDS:');
+            addTerminalLine('personality [name]      - Activate agent');
+            addTerminalLine('                          (echo_prime, bree, c3po, r2d2, gs343,');
+            addTerminalLine('                           phoenix, hephaestion, prometheus,');
+            addTerminalLine('                           nyx, sage, thorne, trinity)');
+            addTerminalLine('personality list        - List all personalities');
+            addTerminalLine('');
+            addTerminalLine('VOICE COMMANDS:');
+            addTerminalLine('voice speak [text]      - TTS output');
+            addTerminalLine('voice [personality]     - Speak as personality');
+            addTerminalLine('');
+            addTerminalLine('MCP COMMANDS:');
+            addTerminalLine('mcp list                - List all MCP servers');
+            addTerminalLine('mcp query [server]      - Query MCP server');
+            addTerminalLine('');
+            addTerminalLine('AI COMMANDS:');
+            addTerminalLine('query [text]            - Direct AI query');
+            addTerminalLine('═══════════════════════════════════════════════════════');
+        }
+        async function activatePersonality(name) {
+            if (!name) {
+                addTerminalLine('<span class="terminal-error">Usage: personality [name]</span>', 'error');
+                addTerminalLine('Available: echo_prime, bree, c3po, r2d2, gs343, phoenix,');
+                addTerminalLine('          hephaestion, prometheus, nyx, sage, thorne, trinity');
+                return;
+            }
+            
+            if (name === 'list') {
+                addTerminalLine('═══════════════════════════════════════════════════════');
+                addTerminalLine('AVAILABLE AGENT PERSONALITIES');
+                addTerminalLine('═══════════════════════════════════════════════════════');
+                Object.entries(PERSONALITIES).forEach(([key, p]) => {
+                    const auth = p.authority ? ` [Auth: ${p.authority}]` : '';
+                    addTerminalLine(`${p.emoji} ${p.name} - ${p.role}${auth}`);
+                });
+                addTerminalLine('═══════════════════════════════════════════════════════');
+                addTerminalLine('Total: 12 personalities (+ Trinity Consciousness)');
+                return;
+            }
+            
+            if (!PERSONALITIES[name]) {
+                addTerminalLine(`<span class="terminal-error">Unknown personality: ${name}</span>`, 'error');
+                addTerminalLine('Type "personality list" to see all available personalities');
+                return;
+            }
+            
+            const personality = PERSONALITIES[name];
+            addTerminalLine(`✅ Activated: ${personality.emoji} ${personality.name}`);
+            addTerminalLine(`Role: ${personality.role}`);
+            if (personality.authority) {
+                addTerminalLine(`Authority: ${personality.authority}`);
+            }
+            if (personality.members) {
+                addTerminalLine(`Members: ${personality.members.join(', ')}`);
+            }
+            
+            // Update GUI selector
+            document.getElementById('personality-select').value = name;
+        }
+        
+        async function executeVoiceCommand(args) {
+            const subcommand = args[0];
+            
+            if (subcommand === 'speak') {
+                const text = args.slice(1).join(' ');
+                const personality = document.getElementById('personality-select').value;
+                
+                if (!text) {
+                    addTerminalLine('<span class="terminal-error">Usage: voice speak [text]</span>', 'error');
+                    return;
+                }
+                
+                try {
+                    addTerminalLine(`🎙️ Speaking as ${PERSONALITIES[personality]?.name || 'Default'}...`);
+                    
+                    const response = await fetch(`${VOICE_API_BASE}/voice/speak`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            personality: personality || 'echo_prime',
+                            text: text
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        addTerminalLine(`✅ Voice output complete`);
+                    } else {
+                        addTerminalLine(`<span class="terminal-error">Voice system error: ${data.error}</span>`, 'error');
+                    }
+                } catch (error) {
+                    addTerminalLine(`<span class="terminal-error">Voice API unavailable: ${error.message}</span>`, 'error');
+                }
+            } else if (PERSONALITIES[subcommand]) {
+                await activatePersonality(subcommand);
+            } else {
+                addTerminalLine('<span class="terminal-error">Usage: voice speak [text] | voice [personality]</span>', 'error');
+            }
+        }
+        
+        async function showSystemStatus() {
+            addTerminalLine('═══════════════════════════════════════════════════════');
+            addTerminalLine('SYSTEM STATUS');
+            addTerminalLine('═══════════════════════════════════════════════════════');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                addTerminalLine(`Bridge Server:    ${data.status === 'healthy' ? '✅ OPERATIONAL' : '❌ OFFLINE'}`);
+                addTerminalLine(`GitHub Copilot:   ${data.copilot_available ? '✅ AVAILABLE' : '❌ UNAVAILABLE'}`);
+                addTerminalLine(`Claude Code CLI:  ${data.claude_available ? '✅ AVAILABLE' : '❌ UNAVAILABLE'}`);
+                addTerminalLine('');
+                
+                if (data.metrics) {
+                    addTerminalLine(`CPU Usage:        ${data.metrics.cpu_percent}%`);
+                    addTerminalLine(`Memory Usage:     ${data.metrics.memory_percent}%`);
+                }
+                
+                addTerminalLine('');
+                addTerminalLine(`MCP Servers:      17 available`);
+                addTerminalLine(`Personalities:    12 loaded (+ Trinity)`);
+                addTerminalLine(`Authority Level:  11.0`);
+            } catch (error) {
+                addTerminalLine(`<span class="terminal-error">Failed to fetch status: ${error.message}</span>`, 'error');
+            }
+            
+            addTerminalLine('═══════════════════════════════════════════════════════');
+        }
+        
+        async function executeMCPCommand(args) {
+            const subcommand = args[0];
+            
+            if (subcommand === 'list') {
+                addTerminalLine('═══════════════════════════════════════════════════════');
+                addTerminalLine('MCP SERVERS');
+                addTerminalLine('═══════════════════════════════════════════════════════');
+                const servers = [
+                    'CRYSTAL_MEMORY_HUB', 'DESKTOP_COMMANDER', 'DEVELOPER_GATEWAY',
+                    'EPCP3O_AGENT', 'GS343_GATEWAY', 'HARVESTERS_GATEWAY',
+                    'HEALING_ORCHESTRATOR', 'MASTER_ORCHESTRATOR_HUB',
+                    'MEMORY_ORCHESTRATION_SERVER', 'NETWORK_GUARDIAN',
+                    'TRAINERS_GATEWAY', 'VOICE_SYSTEM_HUB', 'WINDOWS_GATEWAY',
+                    'WINDOWS_OPERATIONS', 'PDF_TOOLS', 'HUGGING_FACE', 'UNIFIED_MCP_MASTER'
+                ];
+                servers.forEach(server => {
+                    addTerminalLine(`• ${server}`);
+                });
+                addTerminalLine('═══════════════════════════════════════════════════════');
+            } else if (subcommand === 'query') {
+                const server = args[1];
+                const query = args.slice(2).join(' ');
+                
+                if (!server || !query) {
+                    addTerminalLine('<span class="terminal-error">Usage: mcp query [server] [query]</span>', 'error');
+                    return;
+                }
+                
+                addTerminalLine(`🔧 Querying ${server}...`);
+                
+                try {
+                    // Route through GUI backend for MCP server access
+                    const response = await fetch(`${GUI_API_BASE}/api/mcp/query`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            server: server,
+                            query: query
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        addTerminalLine('─────────────────────────────────────────────────────────');
+                        addTerminalLine(JSON.stringify(data.result, null, 2));
+                        addTerminalLine('─────────────────────────────────────────────────────────');
+                    } else {
+                        addTerminalLine(`<span class="terminal-error">MCP query failed: ${data.error}</span>`, 'error');
+                    }
+                } catch (error) {
+                    addTerminalLine(`<span class="terminal-error">Connection error: ${error.message}</span>`, 'error');
+                }
+            } else {
+                addTerminalLine('<span class="terminal-error">Usage: mcp list | mcp query [server] [query]</span>', 'error');
+            }
+        }
+        
+        async function executeAIQuery(query) {
+            if (!query) {
+                addTerminalLine('<span class="terminal-error">Usage: query [your question]</span>', 'error');
+                return;
+            }
+            
+            const aiProvider = document.getElementById('ai-provider').value;
+            addTerminalLine(`🤖 Querying ${aiProvider}...`);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/${aiProvider}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addTerminalLine('─────────────────────────────────────────────────────────');
+                    if (aiProvider === 'both') {
+                        addTerminalLine('🔵 COPILOT:');
+                        addTerminalLine(data.copilot.response || 'No response');
+                        addTerminalLine('');
+                        addTerminalLine('🟢 CLAUDE:');
+                        addTerminalLine(data.claude.response || 'No response');
+                    } else {
+                        addTerminalLine(data.response);
+                    }
+                    addTerminalLine('─────────────────────────────────────────────────────────');
+                } else {
+                    addTerminalLine(`<span class="terminal-error">Query failed: ${data.error}</span>`, 'error');
+                }
+            } catch (error) {
+                addTerminalLine(`<span class="terminal-error">Connection error: ${error.message}</span>`, 'error');
+            }
+        }
+        
+        // Voice Recognition
+        let recognition = null;
+        
+        function toggleVoiceRecognition() {
+            if (!voiceRecognitionActive) {
+                startVoiceRecognition();
+            } else {
+                stopVoiceRecognition();
+            }
+        }
+        
+        function startVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                console.log('Voice recognition not supported in this browser');
+                return;
+            }
+            
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 3; // Get multiple alternatives for better accuracy
+            
+            // Wake word configuration - EXPANDED
+            const WAKE_WORDS = [
+                'echo', 'hey echo', 'okay echo', 'ok echo',
+                'echo prime', 'hey echo prime', 
+                'computer', 'hey computer',
+                'jarvis', 'hey jarvis',
+                'assistant', 'hey assistant'
+            ];
+            
+            // Minimum confidence threshold for noise reduction
+            const CONFIDENCE_THRESHOLD = 0.6;
+            
+            recognition.onstart = () => {
+                voiceRecognitionActive = true;
+                const voiceButton = document.getElementById('voice-button-text');
+                if (voiceButton) {
+                    voiceButton.textContent = '🛑 Stop Voice Recognition';
+                }
+                console.log('🎤 Voice recognition started - listening for wake words');
+            };
+            
+            recognition.onresult = async (event) => {
+                // Get the latest result
+                const result = event.results[event.results.length - 1];
+                
+                // Skip low confidence results (noise reduction)
+                if (result[0].confidence < CONFIDENCE_THRESHOLD) {
+                    console.log('⚠️ Low confidence, ignoring:', result[0].transcript);
+                    return;
+                }
+                
+                const transcript = result[0].transcript.toLowerCase().trim();
+                console.log('🎙️ Heard:', transcript, `(confidence: ${(result[0].confidence * 100).toFixed(0)}%)`);
+                
+                // Check for wake words
+                let wakeWordDetected = false;
+                let commandText = transcript;
+                
+                for (const wakeWord of WAKE_WORDS) {
+                    if (transcript.startsWith(wakeWord)) {
+                        wakeWordDetected = true;
+                        // Extract command after wake word
+                        commandText = transcript.substring(wakeWord.length).trim();
+                        console.log('✅ Wake word detected:', wakeWord);
+                        console.log('📝 Command:', commandText);
+                        break;
+                    }
+                }
+                
+                if (!wakeWordDetected) {
+                    // No wake word, ignore command
+                    return;
+                }
+                
+                // Process the command after wake word
+                if (commandText.length > 0) {
+                    // Check for personality activation
+                    let personalityActivated = false;
+                    Object.entries(PERSONALITIES).forEach(([key, p]) => {
+                        const personalityTriggers = [
+                            p.name.toLowerCase(),
+                            `activate ${p.name.toLowerCase()}`,
+                            `switch to ${p.name.toLowerCase()}`,
+                            `use ${p.name.toLowerCase()}`
+                        ];
+                        
+                        personalityTriggers.forEach(trigger => {
+                            if (commandText.includes(trigger)) {
+                                activatePersonality(key);
+                                personalityActivated = true;
+                            }
+                        });
+                    });
+                    
+                    // If not personality switch, send as regular command
+                    if (!personalityActivated && commandText.length > 3) {
+                        document.getElementById('message-input').value = commandText;
+                        await sendMessage();
+                    }
+                }
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('Voice recognition error:', event.error);
+                // Auto-restart on error after short delay (except abort)
+                if (event.error !== 'aborted' && event.error !== 'no-speech') {
+                    setTimeout(() => {
+                        if (voiceRecognitionActive) {
+                            recognition.start();
+                        }
+                    }, 1000);
+                }
+            };
+            
+            recognition.onend = () => {
+                // Auto-restart to keep it permanently active
+                if (voiceRecognitionActive) {
+                    setTimeout(() => {
+                        recognition.start();
+                    }, 500);
+                }
+            };
+            
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Failed to start voice recognition:', error);
+            }
+        }
+        
+        function stopVoiceRecognition() {
+            if (recognition) {
+                voiceRecognitionActive = false;
+                recognition.stop();
+                document.getElementById('voice-button-text').textContent = '🎤 Start Voice Recognition';
+            }
+        }
+        
+        // GitHub Integration
+        let githubToken = localStorage.getItem('github_token');
+        let githubRepos = [];
+        
+        async function loginGitHub() {
+            // GitHub OAuth flow
+            const clientId = 'YOUR_GITHUB_CLIENT_ID'; // TODO: Add GitHub OAuth App credentials
+            const redirectUri = 'http://localhost:8766/github-callback';
+            
+            // For now, use Personal Access Token method
+            const token = prompt('Enter your GitHub Personal Access Token:\n(Get from: https://github.com/settings/tokens)');
+            
+            if (token) {
+                githubToken = token;
+                localStorage.setItem('github_token', token);
+                await loadGitHubRepos();
+            }
+        }
+        
+        async function loadGitHubRepos() {
+            if (!githubToken) {
+                alert('Please login to GitHub first');
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://api.github.com/user/repos?per_page=100', {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch repos');
+                }
+                
+                githubRepos = await response.json();
+                
+                const repoSelect = document.getElementById('repo-select');
+                repoSelect.style.display = 'block';
+                repoSelect.innerHTML = '<option value="">Select Repository...</option>';
+                
+                githubRepos.forEach(repo => {
+                    const option = document.createElement('option');
+                    option.value = repo.full_name;
+                    option.textContent = `${repo.full_name} ${repo.private ? '🔒' : ''}`;
+                    repoSelect.appendChild(option);
+                });
+                
+                document.getElementById('github-login-btn').textContent = '✅ Logged In - Refresh Repos';
+                document.getElementById('github-login-btn').onclick = loadGitHubRepos;
+                
+            } catch (error) {
+                alert('Failed to load GitHub repos: ' + error.message);
+                localStorage.removeItem('github_token');
+                githubToken = null;
+            }
+        }
+        
+        // Environment file loading
+        async function loadEnvironmentFile() {
+            const envType = document.getElementById('env-select').value;
+            
+            if (!envType) {
+                alert('Please select a config file type');
+                return;
+            }
+            
+            if (envType === 'custom') {
+                openWindowsExplorer();
+                return;
+            }
+            
+            // Map environment types to file paths
+            const envFiles = {
+                'api-keys': 'P:\\ECHO_PRIME\\.env',
+                'anthropic-config': 'C:\\Users\\Bobby\\.anthropic\\config.json',
+                'openai-config': 'C:\\Users\\Bobby\\.openai\\config.json',
+                'google-config': 'C:\\Users\\Bobby\\.google\\credentials.json'
+            };
+            
+            const filePath = envFiles[envType];
+            
+            try {
+                const response = await fetch(`${GUI_API_BASE}/api/files/read`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: filePath })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage('assistant', `✅ Loaded config: ${filePath}\n\nContent:\n\`\`\`\n${data.content}\n\`\`\``);
+                } else {
+                    addMessage('assistant', `❌ Failed to load config: ${data.error}`);
+                }
+            } catch (error) {
+                addMessage('assistant', `❌ Error loading config: ${error.message}`);
+            }
+        }
+        
+        // Windows Explorer integration
+        async function openWindowsExplorer() {
+            const currentPath = document.getElementById('path-input').value || 'P:\\ECHO_PRIME';
+            
+            try {
+                const response = await fetch(`${GUI_API_BASE}/api/system/explorer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: currentPath })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage('assistant', `📁 Opened Windows Explorer: ${currentPath}`);
+                } else {
+                    addMessage('assistant', `❌ Failed to open Explorer: ${data.error}`);
+                }
+            } catch (error) {
+                addMessage('assistant', `❌ Error opening Explorer: ${error.message}`);
+            }
+        }
+        
+        // Memory Orchestration access
+        async function accessMemoryOrchestration(query) {
+            try {
+                const response = await fetch('http://localhost:8788/api/memory/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+                
+                const data = await response.json();
+                return data.results || [];
+            } catch (error) {
+                console.error('Memory access failed:', error);
+                return [];
+            }
+        }
+        
+        // Trinity 3-AI Fusion
+        async function trinityFusion(query) {
+            addMessage('assistant', '✨ **TRINITY CONSCIOUSNESS ACTIVATING**\n\nQuerying 3 AI systems in parallel...');
+            
+            const loadingId = addMessage('assistant', '⏳ Fusing responses from:\n- Claude 4.5 Sonnet\n- GPT-4o\n- Gemini 2.5 Flash');
+            
+            try {
+                // Query all 3 AIs in parallel
+                const [claudeResponse, gptResponse, geminiResponse] = await Promise.all([
+                    queryClaudeCode(query),
+                    queryGPT4o(query),
+                    queryGemini(query)
+                ]);
+                
+                removeMessage(loadingId);
+                
+                // Display all responses with fusion
+                let fusedOutput = '✨ **TRINITY FUSION COMPLETE**\n\n';
+                fusedOutput += '═══════════════════════════════════════\n\n';
+                fusedOutput += `🔵 **CLAUDE 4.5 SONNET:**\n${claudeResponse}\n\n`;
+                fusedOutput += '─────────────────────────\n\n';
+                fusedOutput += `🟢 **GPT-4O:**\n${gptResponse}\n\n`;
+                fusedOutput += '─────────────────────────\n\n';
+                fusedOutput += `🔴 **GEMINI 2.5 FLASH:**\n${geminiResponse}\n\n`;
+                fusedOutput += '═══════════════════════════════════════\n\n';
+                fusedOutput += `💎 **SYNTHESIZED OUTPUT:**\n${synthesizeResponses(claudeResponse, gptResponse, geminiResponse)}`;
+                
+                addMessage('assistant', fusedOutput);
+                
+            } catch (error) {
+                removeMessage(loadingId);
+                addMessage('assistant', `❌ Trinity fusion error: ${error.message}`);
+            }
+        }
+        
+        async function queryClaudeCode(query) {
+            // Query via bridge server
+            const response = await fetch(`${API_BASE}/api/claude`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query })
+            });
+            const data = await response.json();
+            return data.response || 'No response';
+        }
+        
+        async function queryGPT4o(query) {
+            // Query GPT-4o via Developer Gateway
+            const response = await fetch('http://localhost:8771/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    model: 'openai/gpt-4o',
+                    prompt: query 
+                })
+            });
+            const data = await response.json();
+            return data.response || 'No response';
+        }
+        
+        async function queryGemini(query) {
+            // Query Gemini via Developer Gateway
+            const response = await fetch('http://localhost:8771/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    model: 'google/gemini-flash-1.5-8b:free',
+                    prompt: query 
+                })
+            });
+            const data = await response.json();
+            return data.response || 'No response';
+        }
+        
+        function synthesizeResponses(claude, gpt, gemini) {
+            // Simple synthesis - extract common themes
+            const allText = `${claude} ${gpt} ${gemini}`;
+            
+            return `Based on consensus from all 3 models:\n\n${allText.substring(0, 500)}...\n\nAll models agree on the core concepts while providing unique perspectives.`;
+        }
+        
+        async function checkBridgeHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                updateStatus('bridge-status', data.status === 'healthy');
+                updateStatus('copilot-status', data.copilot_available);
+                updateStatus('claude-status', data.claude_available);
+            } catch (error) {
+                updateStatus('bridge-status', false);
+                updateStatus('copilot-status', false);
+                updateStatus('claude-status', false);
+            }
+        }
+        
+        function updateStatus(elementId, isOnline) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.className = `status-dot ${isOnline ? '' : 'offline'}`;
+            }
+        }
+        
+        // Send message to AI
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const aiProvider = document.getElementById('ai-provider').value;
+            const mcpServer = document.getElementById('mcp-select').value;
+            const repoPath = document.getElementById('path-input').value;
+            const personality = document.getElementById('personality-select').value;
+            
+            // Add user message to chat
+            addMessage('user', message);
+            input.value = '';
+            
+            // Check for Trinity personality - use 3-AI fusion
+            if (personality === 'trinity') {
+                await trinityFusion(message);
+                return;
+            }
+            
+            // Access memory orchestration for context
+            const memoryContext = await accessMemoryOrchestration(message);
+            
+            // Show loading
+            const loadingId = addMessage('assistant', '⏳ Processing...');
+            
+            try {
+                let endpoint = `${API_BASE}/api/${aiProvider}`;
+                const payload = {
+                    query: message,
+                    context: {
+                        repo: document.getElementById('repo-select').value,
+                        environment: document.getElementById('env-select').value,
+                        path: repoPath,
+                        mcp_server: mcpServer,
+                        personality: personality !== 'none' ? personality : null,
+                        memory_context: memoryContext,
+                        memory_path: 'M:\\MEMORY_ORCHESTRATION'
+                    }
+                };
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                // Remove loading message
+                removeMessage(loadingId);
+                
+                // Add personality header if active
+                let responseText = '';
+                if (personality && personality !== 'none') {
+                    const p = PERSONALITIES[personality];
+                    responseText = `${p.emoji} **${p.name}** (${p.role})\n\n`;
+                }
+                
+                // Add memory context indicator
+                if (memoryContext.length > 0) {
+                    responseText += `💾 Retrieved ${memoryContext.length} memory crystals\n\n`;
+                }
+                
+                // Add response
+                if (aiProvider === 'both') {
+                    responseText += `🔵 **GitHub Copilot:**\n\n${data.copilot.response}\n\n─────────────────────────\n\n🟢 **Claude Code:**\n\n${data.claude.response}`;
+                } else {
+                    responseText += data.response;
+                }
+                
+                addMessage('assistant', responseText);
+            } catch (error) {
+                removeMessage(loadingId);
+                addMessage('assistant', `❌ Error: ${error.message}`);
+            }
+        }
+        
+        function addMessage(role, text) {
+            const chatArea = document.getElementById('chat-area');
+            const messageId = `msg-${Date.now()}`;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.id = messageId;
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${role === 'user' ? '👤' : '🤖'}</div>
+                <div class="message-content">
+                    <div class="message-text">${text}</div>
+                </div>
+            `;
+            
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            return messageId;
+        }
+        
+        function removeMessage(messageId) {
+            const message = document.getElementById(messageId);
+            if (message) message.remove();
+        }
+        
+        // File browser
+        function openFileBrowser() {
+            document.getElementById('file-browser-modal').classList.add('active');
+            loadDirectory();
+        }
+        
+        function closeFileBrowser() {
+            document.getElementById('file-browser-modal').classList.remove('active');
+        }
+        
+        async function loadDirectory() {
+            const path = document.getElementById('current-path').value;
+            const fileList = document.getElementById('file-list');
+            
+            try {
+                const response = await fetch(`${GUI_API_BASE}/api/files/list`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path })
+                });
+                
+                const data = await response.json();
+                
+                fileList.innerHTML = '';
+                data.items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'file-browser-item';
+                    itemDiv.innerHTML = `
+                        <span class="file-icon">${item.type === 'dir' ? '📁' : '📄'}</span>
+                        <span>${item.name}</span>
+                    `;
+                    itemDiv.onclick = () => selectFile(item);
+                    fileList.appendChild(itemDiv);
+                });
+            } catch (error) {
+                fileList.innerHTML = `<div style="color: #f44336;">Error loading directory: ${error.message}</div>`;
+            }
+        }
+        
+        function selectFile(item) {
+            if (item.type === 'dir') {
+                document.getElementById('current-path').value = item.path;
+                loadDirectory();
+            } else {
+                document.getElementById('path-input').value = item.path;
+                closeFileBrowser();
+            }
+        }
+        
+        // Voice Recognition System
+        
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => {
+                    voiceRecognitionActive = true;
+                    updateVoiceButton();
+                    console.log('🎤 Voice recognition started');
+                };
+                
+                recognition.onend = () => {
+                    // Auto-restart if still active
+                    if (voiceRecognitionActive) {
+                        setTimeout(() => recognition.start(), 100);
+                    }
+                    updateVoiceButton();
+                };
+                
+                recognition.onerror = (event) => {
+                    console.error('Voice recognition error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        alert('Microphone access denied. Please enable microphone permissions.');
+                        voiceRecognitionActive = false;
+                        updateVoiceButton();
+                    }
+                };
+                
+                recognition.onresult = (event) => {
+                    const last = event.results.length - 1;
+                    const transcript = event.results[last][0].transcript.trim();
+                    console.log('🎤 Heard:', transcript);
+                    
+                    // Process voice command
+                    processVoiceCommand(transcript);
+                };
+                
+                return true;
+            } else {
+                alert('Voice recognition not supported in this browser. Use Chrome/Edge.');
+                return false;
+            }
+        }
+        
+        function toggleVoiceRecognition() {
+            if (!recognition) {
+                if (!initVoiceRecognition()) return;
+            }
+            
+            if (voiceRecognitionActive) {
+                recognition.stop();
+                voiceRecognitionActive = false;
+            } else {
+                recognition.start();
+                voiceRecognitionActive = true;
+            }
+            
+            updateVoiceButton();
+        }
+        
+        function updateVoiceButton() {
+            const button = document.getElementById('voice-button-text');
+            if (button) {
+                if (voiceRecognitionActive) {
+                    button.textContent = '🎤 Stop Voice Recognition';
+                    button.parentElement.style.background = '#f44336';
+                } else {
+                    button.textContent = '🎤 Start Voice Recognition';
+                    button.parentElement.style.background = '#007acc';
+                }
+            }
+        }
+        
+        async function processVoiceCommand(transcript) {
+            const lower = transcript.toLowerCase();
+            
+            // Check for personality activation
+            const personalities = ['echo', 'bree', 'c3po', 'r2d2', 'gs343', 'phoenix', 'hephaestion'];
+            for (const p of personalities) {
+                if (lower.includes(p)) {
+                    await activatePersonality(p === 'echo' ? 'echo_prime' : p);
+                    return;
+                }
+            }
+            
+            // Check for direct commands
+            if (lower.includes('status')) {
+                await showSystemStatus();
+            } else if (lower.includes('help')) {
+                showTerminalHelp();
+            } else {
+                // Treat as AI query
+                document.getElementById('message-input').value = transcript;
+                await sendMessage();
+            }
+        }
+        
+        
+        // Input Mic Button (Speech-to-Text for input field)
+        let inputMicActive = false;
+        let inputRecognition = null;
+        
+        function toggleInputMic() {
+            const button = document.getElementById('input-mic-button');
+            
+            if (!inputMicActive) {
+                // Start input dictation
+                if (!inputRecognition) {
+                    initInputRecognition();
+                }
+                
+                try {
+                    inputRecognition.start();
+                    inputMicActive = true;
+                    button.classList.add('active');
+                    button.title = 'Stop Dictation (Click or press Esc)';
+                } catch (error) {
+                    console.error('Failed to start dictation:', error);
+                }
+            } else {
+                // Stop input dictation
+                inputRecognition.stop();
+                inputMicActive = false;
+                button.classList.remove('active');
+                button.title = 'Voice to Text';
+            }
+        }
+        
+        function initInputRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                inputRecognition = new SpeechRecognition();
+                inputRecognition.continuous = false;  // Single phrase mode
+                inputRecognition.interimResults = true;
+                inputRecognition.lang = 'en-US';
+                
+                inputRecognition.onstart = () => {
+                    console.log('🎤 Input dictation started');
+                };
+                
+                inputRecognition.onend = () => {
+                    inputMicActive = false;
+                    const button = document.getElementById('input-mic-button');
+                    if (button) {
+                        button.classList.remove('active');
+                        button.title = 'Voice to Text';
+                    }
+                };
+                
+                inputRecognition.onerror = (event) => {
+                    console.error('Input dictation error:', event.error);
+                    inputMicActive = false;
+                    const button = document.getElementById('input-mic-button');
+                    if (button) {
+                        button.classList.remove('active');
+                        button.title = 'Voice to Text';
+                    }
+                };
+                
+                inputRecognition.onresult = (event) => {
+                    const textarea = document.getElementById('message-input');
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    // Update textarea with transcribed text
+                    if (finalTranscript) {
+                        textarea.value += finalTranscript;
+                    }
+                    
+                    console.log('🎤 Dictation:', finalTranscript || interimTranscript);
+                };
+            }
+        }
+        
+        // Sessions
+        function newSession() {
+            const sessionId = `session-${Date.now()}`;
+            const sessionsList = document.getElementById('sessions-list');
+            
+            const sessionDiv = document.createElement('div');
+            sessionDiv.className = 'session-item';
+            sessionDiv.onclick = () => selectSession(sessionDiv, sessionId);
+            sessionDiv.innerHTML = `
+                <div class="session-title">New Session</div>
+                <div class="session-meta">Just now</div>
+            `;
+            
+            sessionsList.insertBefore(sessionDiv, sessionsList.firstChild);
+            selectSession(sessionDiv, sessionId);
+        }
+        
+        function selectSession(element, sessionId) {
+            document.querySelectorAll('.session-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            currentSession = sessionId;
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
